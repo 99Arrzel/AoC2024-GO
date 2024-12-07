@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 )
 
 func safeRange(x int, y int) (result bool) {
-	maxGap := 2
+	maxGap := 3
 	if x == y {
 		return false
 	}
-	if x < y+maxGap || y > x+maxGap {
+	if (int(math.Abs(float64(x - y))) > maxGap) {
 		return false
 	}
 	return true
@@ -20,12 +21,11 @@ func safeRange(x int, y int) (result bool) {
 
 func main() {
 	//Read
-	// dat, err := os.ReadFile("./test1_1.txt")
-	dat, _ := os.ReadFile("./test2_1.txt")
+	// dat, err := os.ReadFile("./test2_1.txt")
+	dat, _ := os.ReadFile("./input2_1.txt")
 	stringValue := string(dat)
 	rowValues := strings.Split(stringValue, "\n")
 	safeCounter := 0
-
 	for _, rowValue := range rowValues {
 		values := strings.Split(rowValue, " ")
 		isSafe := true
@@ -42,24 +42,22 @@ func main() {
 		for idx, value := range values {
 			intValue, _ := strconv.Atoi(value)
 			if idx > 0 {
-				oldIntValue, _:= strconv.Atoi(values[idx - 1])
-				if(!safeRange(oldIntValue, intValue)) {
+				oldIntValue, _ := strconv.Atoi(values[idx-1])
+				if !safeRange(oldIntValue, intValue) {
+					fmt.Println("UNSAFE", intValue, oldIntValue)
 					isSafe = false
 				}
-				if(increasingOrDecreasing == "increasing"){
-					if(oldIntValue > intValue){
-						isSafe = false
-						continue
-					}
+				if increasingOrDecreasing == "increasing" && oldIntValue > intValue {
+					isSafe = false
+					break
 				}
-				if(increasingOrDecreasing == "decreasing"){
-					if(intValue > oldIntValue){
-						isSafe = false
-					}
+				if increasingOrDecreasing == "decreasing" && intValue > oldIntValue {
+					isSafe = false
+					break
 				}
 			}
 		}
-		if(isSafe) {
+		if isSafe {
 			safeCounter++
 		}
 	}
