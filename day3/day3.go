@@ -66,18 +66,14 @@ func main() {
 	dat, _ := os.ReadFile("./input3_1.txt")
 	stringValue := string(dat)
 	rowValues := strings.Split(stringValue, "\n")
-	// result := 0
-	muls := make([][][]int, 0)
 	noSearchInstruction := "don't()"
 	searchInstruction := "do()"
-	// collector := ""
-	// shouldAppend := true
 	total := 0
+	shouldAppend := true
 	for idx, rowValue := range rowValues {
 		letters := strings.Split(rowValue, "")
 		collector := ""
 		continuous := ""
-		shouldAppend := true
 		for _, letter := range letters {
 			continuous += letter
 			if strings.HasSuffix(continuous, noSearchInstruction) {
@@ -90,10 +86,10 @@ func main() {
 				collector += letter
 			}
 		}
-		rowMuls, tot := evaluateMuls(collector)
+		_, tot := evaluateMuls(strings.Clone(collector))
 		total += tot
 		fmt.Println(collector, idx, " ----------- ", tot)
-		muls = append(muls, rowMuls)
+
 	}
 	fmt.Println(total)
 }
