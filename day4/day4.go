@@ -13,7 +13,13 @@ func reverseArray(slice []string) []string {
 	}
 	return newSlice
 }
-
+func reverseWord(word string) string {
+	newWord := ""
+	for x := len(word) - 1; x >= 0; x-- {
+		newWord = newWord + string(word[x])
+	}
+	return newWord
+}
 func rotateArray(matrixs [][]string) [][]string {
 	width := len(matrixs)
 	height := len(matrixs[0])
@@ -28,7 +34,6 @@ func rotateArray(matrixs [][]string) [][]string {
 		}
 		newMatrixs[x] = reverseArray(newMatrixs[x])
 	}
-
 	return newMatrixs
 }
 func inputToMatrixs(input string) [][]string {
@@ -40,6 +45,7 @@ func inputToMatrixs(input string) [][]string {
 	}
 	return newMatrixs
 }
+
 func inlineSearch(input [][]string, search string) int {
 	total := 0
 	for x := 0; x < len(input); x++ {
@@ -49,14 +55,64 @@ func inlineSearch(input [][]string, search string) int {
 	}
 	return total
 }
-
+func diagonalsSearch(input [][]string, search string) ([]string, int) {
+	searchLength := len(search)
+	total := 0
+	completeList := make([]string, 0)
+	primaryDiagonal := ""
+	secondaryDiagonal := ""
+	for z := 0; z < len(input); z++ {
+		topRightAccumulator := ""
+		bottomLeftAccumulator := ""
+		topLeftAccumulator := ""
+		bottomRightAccumulator := ""
+		for x := 0; x < len(input); x++ {
+			for y := 0; y < len(input); y++ {
+				if x-y == 0 && len(primaryDiagonal) <= len(input) {
+					primaryDiagonal += input[x][y]
+				}
+				if x+y == len(input)-1 && len(primaryDiagonal) <= len(input) {
+					secondaryDiagonal += input[x][y]
+				}
+				if x+y+z == len(input) {
+					topLeftAccumulator += input[x][y]
+				}
+				if x+y-z == len(input) {
+					bottomRightAccumulator += input[x][y]
+				}
+				if x == y+z {
+					bottomLeftAccumulator += input[x][y]
+				}
+				if y == x+z {
+					topRightAccumulator += input[x][y]
+				}
+			}
+		}
+		if len(bottomLeftAccumulator) >= searchLength {
+			completeList = append(completeList, bottomLeftAccumulator)
+		}
+		if len(topRightAccumulator) >= searchLength {
+			completeList = append(completeList, topRightAccumulator)
+		}
+	}
+	completeList = append(completeList, primaryDiagonal)
+	completeList = append(completeList, secondaryDiagonal)
+	for _, item := range completeList {
+		reversed := reverseWord(item)
+		if strings.Contains(item, search) {
+			total++
+		}
+		if strings.Contains(reversed, search) {
+			total++
+		}
+	}
+	return completeList, total
+}
 func main() {
-	//Read
 	dat, _ := os.ReadFile("./test4_1.txt")
 	// dat, _ := os.ReadFile("./test3_2.txt")
 	// dat, _ := os.ReadFile("./input4_1.txt")
 	searchWord := "XMAS"
-
 	stringValue := string(dat)
 	matrixs := inputToMatrixs(stringValue)
 	flat := inlineSearch(matrixs, searchWord) //plain
@@ -70,8 +126,10 @@ func main() {
 	rotated3 := rotateArray(rotated2)
 	degrees270 := inlineSearch(rotated3, searchWord) //plain
 	fmt.Println(degrees270, rotated3)
-
-	fmt.Println(flat + degrees90 + degrees180 + degrees270)
+	total := flat + degrees90 + degrees180 + degrees270
+	fmt.Println(total)
+	fmt.Println("New")
 	// searchWord := "XMAS"
-
+	_, total2 := diagonalsSearch(matrixs, "XMAS")
+	fmt.Println(total + total2)
 }
