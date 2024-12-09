@@ -6,13 +6,6 @@ import (
 	"strings"
 )
 
-func reverseArray(slice []string) []string {
-	newSlice := make([]string, 0)
-	for i := len(slice) - 1; i >= 0; i-- {
-		newSlice = append(newSlice, slice[i])
-	}
-	return newSlice
-}
 func reverseWord(word string) string {
 	newWord := ""
 	for x := len(word) - 1; x >= 0; x-- {
@@ -32,7 +25,7 @@ func rotateArray(matrixs [][]string) [][]string {
 		for y := 0; y < width; y++ {
 			newMatrixs[x][y] = matrixs[y][x]
 		}
-		newMatrixs[x] = reverseArray(newMatrixs[x])
+		newMatrixs[x] = strings.Split(reverseWord(strings.Join(newMatrixs[x], "")), "")
 	}
 	return newMatrixs
 }
@@ -73,35 +66,48 @@ func diagonalsSearch(input [][]string, search string) ([]string, int) {
 		topLeftAccumulator := ""
 		bottomRightAccumulator := ""
 		for x := 0; x < len(input); x++ {
-			for y := 1; y < len(input); y++ {
-				if x+y+z == len(input) {
+			for y := 0; y < len(input); y++ {
+				if x+y+z == len(input)-1 && z != 0 {
 					topLeftAccumulator += input[x][y]
+					// fmt.Print("👍")
+					// continue
 				}
-				if x+y-z == len(input) {
+				if x+y-z == len(input)-1 {
 					bottomRightAccumulator += input[x][y]
+					// fmt.Print("🤑")
+					// continue
 				}
-				if x == y+z {
+
+				if x == y+z && z != 0 {
 					bottomLeftAccumulator += input[x][y]
+					// fmt.Print("🤣")
+					// continue
 				}
 				if y == x+z {
 					topRightAccumulator += input[x][y]
+					// fmt.Print("😊")
+					// continue
 				}
+				// fmt.Print("⬛")
 			}
+			// fmt.Println()
 		}
 		topRightList = append(topRightList, topRightAccumulator)
 		bottomLeftList = append(bottomLeftList, bottomLeftAccumulator)
 		topLeftList = append(topLeftList, topLeftAccumulator)
 		bottomRightList = append(bottomRightList, bottomRightAccumulator)
+		// fmt.Println("////////")
 	}
 	completeList = append(completeList, topRightList...)
 	completeList = append(completeList, bottomLeftList...)
 	completeList = append(completeList, topLeftList...)
 	completeList = append(completeList, bottomRightList...)
 	for _, item := range completeList {
-		reversed := reverseWord(item)
-		completeList = append(completeList, reversed)
+		completeList = append(completeList, reverseWord(item))
 	}
 	total += countInArray(completeList, search)
+	fmt.Println("Total", total)
+	fmt.Println(completeList)
 	return completeList, total // remove the always 2 dupplicates
 }
 func main() {
@@ -118,7 +124,6 @@ func main() {
 		total += val
 	}
 	fmt.Println(total)
-	list, total2 := diagonalsSearch(matrixs, searchWord)
-	fmt.Println(list)
+	_, total2 := diagonalsSearch(matrixs, searchWord)
 	fmt.Println(total + total2)
 }
