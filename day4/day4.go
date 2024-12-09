@@ -49,31 +49,31 @@ func inputToMatrixs(input string) [][]string {
 func inlineSearch(input [][]string, search string) int {
 	total := 0
 	for x := 0; x < len(input); x++ {
-		if strings.Contains(strings.Join(input[x], ""), search) {
-			total++
-		}
+		total += strings.Count(strings.Join(input[x], ""), search)
+	}
+	return total
+}
+func countInArray(input []string, search string) int {
+	total := 0
+	for x := 0; x < len(input); x++ {
+		total += strings.Count(input[x], search)
 	}
 	return total
 }
 func diagonalsSearch(input [][]string, search string) ([]string, int) {
-	searchLength := len(search)
 	total := 0
 	completeList := make([]string, 0)
-	primaryDiagonal := ""
-	secondaryDiagonal := ""
+	topRightList := make([]string, 0)
+	bottomLeftList := make([]string, 0)
+	topLeftList := make([]string, 0)
+	bottomRightList := make([]string, 0)
 	for z := 0; z < len(input); z++ {
 		topRightAccumulator := ""
 		bottomLeftAccumulator := ""
 		topLeftAccumulator := ""
 		bottomRightAccumulator := ""
 		for x := 0; x < len(input); x++ {
-			for y := 0; y < len(input); y++ {
-				if x-y == 0 && len(primaryDiagonal) <= len(input) {
-					primaryDiagonal += input[x][y]
-				}
-				if x+y == len(input)-1 && len(primaryDiagonal) <= len(input) {
-					secondaryDiagonal += input[x][y]
-				}
+			for y := 1; y < len(input); y++ {
 				if x+y+z == len(input) {
 					topLeftAccumulator += input[x][y]
 				}
@@ -88,48 +88,37 @@ func diagonalsSearch(input [][]string, search string) ([]string, int) {
 				}
 			}
 		}
-		if len(bottomLeftAccumulator) >= searchLength {
-			completeList = append(completeList, bottomLeftAccumulator)
-		}
-		if len(topRightAccumulator) >= searchLength {
-			completeList = append(completeList, topRightAccumulator)
-		}
+		topRightList = append(topRightList, topRightAccumulator)
+		bottomLeftList = append(bottomLeftList, bottomLeftAccumulator)
+		topLeftList = append(topLeftList, topLeftAccumulator)
+		bottomRightList = append(bottomRightList, bottomRightAccumulator)
 	}
-	completeList = append(completeList, primaryDiagonal)
-	completeList = append(completeList, secondaryDiagonal)
+	completeList = append(completeList, topRightList...)
+	completeList = append(completeList, bottomLeftList...)
+	completeList = append(completeList, topLeftList...)
+	completeList = append(completeList, bottomRightList...)
 	for _, item := range completeList {
 		reversed := reverseWord(item)
-		if strings.Contains(item, search) {
-			total++
-		}
-		if strings.Contains(reversed, search) {
-			total++
-		}
+		completeList = append(completeList, reversed)
 	}
-	return completeList, total
+	total += countInArray(completeList, search)
+	return completeList, total // remove the always 2 dupplicates
 }
 func main() {
-	dat, _ := os.ReadFile("./test4_1.txt")
+	// dat, _ := os.ReadFile("./test4_1.txt")
 	// dat, _ := os.ReadFile("./test3_2.txt")
-	// dat, _ := os.ReadFile("./input4_1.txt")
+	dat, _ := os.ReadFile("./input4_1.txt")
 	searchWord := "XMAS"
 	stringValue := string(dat)
 	matrixs := inputToMatrixs(stringValue)
-	flat := inlineSearch(matrixs, searchWord) //plain
-	fmt.Println(flat, matrixs)
-	rotated := rotateArray(matrixs)
-	degrees90 := inlineSearch(rotated, searchWord) //plain
-	fmt.Println(degrees90, rotated)
-	rotated2 := rotateArray(rotated)
-	degrees180 := inlineSearch(rotated2, searchWord) //plain
-	fmt.Println(degrees180, rotated2)
-	rotated3 := rotateArray(rotated2)
-	degrees270 := inlineSearch(rotated3, searchWord) //plain
-	fmt.Println(degrees270, rotated3)
-	total := flat + degrees90 + degrees180 + degrees270
+	total := 0
+	for i := 0; i < 4; i++ {
+		val := inlineSearch(matrixs, searchWord) //plain
+		matrixs = rotateArray(matrixs)
+		total += val
+	}
 	fmt.Println(total)
-	fmt.Println("New")
-	// searchWord := "XMAS"
-	_, total2 := diagonalsSearch(matrixs, "XMAS")
+	list, total2 := diagonalsSearch(matrixs, searchWord)
+	fmt.Println(list)
 	fmt.Println(total + total2)
 }
