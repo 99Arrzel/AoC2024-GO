@@ -10,8 +10,8 @@ import (
 func main() {
 	textMapInput, _ := os.ReadFile("./input_map.txt")
 	WithInput(textMapInput)
-	textMap, _ := os.ReadFile("./test_map.txt")
-	WithInput(textMap)
+	// textMap, _ := os.ReadFile("./test_map.txt")
+	// WithInput(textMap)
 }
 
 func WithInput(textMap []byte) {
@@ -37,19 +37,23 @@ func WithInput(textMap []byte) {
 	}
 	if !wardFound {
 		fmt.Println("No ward")
+		return
 	}
-	WardInMapCondition := WardInMap(wardCoordinates, mapLines)
-	visitedPlaces := map[string]string{}
+	// visitedPlaces := map[string]string{}
+	visitedPlaces := make([]string, 0)
 	direction := "top"
 	WardNextPlace := make([]int, 2)
 	WardNextPlace[0] = wardCoordinates[0]
 	WardNextPlace[1] = wardCoordinates[1]
-	counter := 0
-	for WardInMapCondition {
+	mapPlaces := make(map[string]bool)
+	for WardInMap(wardCoordinates, mapLines) {
+		maze[wardCoordinates[0]][wardCoordinates[1]] = "X"
 		y := strconv.Itoa(wardCoordinates[1])
 		x := strconv.Itoa(wardCoordinates[0])
-		visitedPlaces[x+y] = maze[wardCoordinates[0]][wardCoordinates[1]]
-		counter++
+		// visitedPlaces[x+y] = maze[wardCoordinates[0]][wardCoordinates[1]]
+		visitedPlaces = appendIfUnique(visitedPlaces, x+":"+y)
+		mapPlaces[x+":"+y] = true
+
 		Move(WardNextPlace, direction)
 		isValidWardInMap := WardInMap(WardNextPlace, mapLines)
 		if !isValidWardInMap {
@@ -57,6 +61,7 @@ func WithInput(textMap []byte) {
 			break
 		}
 		nextPlace := maze[WardNextPlace[0]][WardNextPlace[1]]
+
 		if nextPlace == "#" {
 			direction = DirectionChange(direction)
 
@@ -67,38 +72,42 @@ func WithInput(textMap []byte) {
 		}
 
 		Move(wardCoordinates, direction)
-		WardInMapCondition = WardInMap(wardCoordinates, mapLines)
 		// printMap(maze, wardCoordinates, direction)
 		y = strconv.Itoa(wardCoordinates[1])
 		x = strconv.Itoa(wardCoordinates[0])
-		visitedPlaces[x+y] = maze[wardCoordinates[0]][wardCoordinates[1]]
+		// fmt.Printf("%s %s \n", x, y)
+		// visitedPlaces[x+y] = maze[wardCoordinates[0]][wardCoordinates[1]]
+		visitedPlaces = appendIfUnique(visitedPlaces, x+y)
 	}
-	fmt.Println("Total places", len(visitedPlaces), "counter", counter)
+
+	printMap(maze, wardCoordinates, direction)
+	fmt.Println("Total places", len(visitedPlaces), "ending", wardCoordinates, "Map", len(mapPlaces))
 }
 func printMap(maze [][]string, wardCoordinates []int, direction string) {
-	fmt.Println("__Maze__")
+	buffer := "__Maze__\n"
 	for x, char := range maze {
 		for y, char2 := range char {
 			if wardCoordinates[0] == x && wardCoordinates[1] == y {
 				if direction == "top" {
-					fmt.Print("^")
+					buffer += "^"
 				}
 				if direction == "right" {
-					fmt.Print(">")
+					buffer += ">"
 				}
 				if direction == "bottom" {
-					fmt.Print("v")
+					buffer += "v"
 				}
 				if direction == "left" {
-					fmt.Print("<")
+					buffer += "<"
 				}
 			} else {
-				fmt.Print(char2)
+				buffer += char2
 			}
 		}
-		fmt.Println()
+		buffer += "\n"
 	}
-	fmt.Println("________")
+	buffer += "------\n"
+	fmt.Println(buffer)
 }
 
 func Move(wardCoordinates []int, direction string) {
@@ -128,4 +137,13 @@ func DirectionChange(direction string) string {
 func WardInMap(wardCoordinates []int, mapLines []string) bool {
 	return (wardCoordinates[0] < len(mapLines) && wardCoordinates[0] >= 0) && (wardCoordinates[1] < len(mapLines[0]) && wardCoordinates[1] >= 0)
 
+}
+
+func appendIfUnique(input []string, search string) []string {
+	for x := 0; x < len(input); x++ {
+		if input[x] == search {
+			return input
+		}
+	}
+	return append(input, search)
 }
