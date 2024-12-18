@@ -41,14 +41,15 @@ func WithInput(textMap []byte) {
 	WardNextPlace := make([]int, 2)
 	WardNextPlace[0] = wardCoordinates[0]
 	WardNextPlace[1] = wardCoordinates[1]
-	uniquePlaces, infiniteLoops := evaluateUniquePlaces(wardCoordinates, WardNextPlace, maze)
+	uniquePlaces, infiniteLoops, infinityLoopPlaces := evaluateUniquePlaces(wardCoordinates, WardNextPlace, maze)
 	fmt.Println("Total places", len(uniquePlaces))
-	fmt.Println("InfiniteLoops", infiniteLoops)
+	fmt.Println("InfiniteLoops", infiniteLoops, len(infinityLoopPlaces))
 }
 
-func evaluateUniquePlaces(wardCoordinates []int, WardNextPlace []int, maze [][]string) (map[string]bool, int) {
+func evaluateUniquePlaces(wardCoordinates []int, WardNextPlace []int, maze [][]string) (map[string]bool, int,map[string]bool ) {
 	direction := "top"
 	mapPlaces := make(map[string]bool)
+	infinityMapPlaces := make(map[string]bool)
 	maxSize := len(maze)
 	infiniteLoopsCounter := 0
 	for WardInMap(wardCoordinates, maxSize) {
@@ -63,6 +64,7 @@ func evaluateUniquePlaces(wardCoordinates []int, WardNextPlace []int, maze [][]s
 		if isMazeInfiniteLoopWith(maze, wardCoordinates, direction, WardNextPlace) {
 			// printMap(maze, wardCoordinates, direction, WardNextPlace)
 			infiniteLoopsCounter++
+			infinityMapPlaces[makeKey(WardNextPlace[0], WardNextPlace[1])] = true
 			// fmt.Println("VALID INFINTE LOOP")
 		}
 
@@ -76,7 +78,7 @@ func evaluateUniquePlaces(wardCoordinates []int, WardNextPlace []int, maze [][]s
 		Move(wardCoordinates, direction)
 
 	}
-	return mapPlaces, infiniteLoopsCounter
+	return mapPlaces, infiniteLoopsCounter, infinityMapPlaces
 }
 
 // Evaluate if, with current maze, and ward position, this is a infinite loop
@@ -99,8 +101,6 @@ func isMazeInfiniteLoopWith(maze [][]string, startPosition []int, startDirection
 		nextPlace := maze[nextPosition[0]][nextPosition[1]]
 		if nextPlace == "#" || (nextPosition[0] == blockPosition[0] && nextPosition[1] == blockPosition[1]) {
 			direction = DirectionChange(direction)
-			nextPosition = copyPosition(position)
-			Move(nextPosition, direction)
 			accumulator, changes := thisDirectionChanges(maze, position, direction)
 			if traversedPaths[accumulator] {
 				return true
@@ -108,6 +108,8 @@ func isMazeInfiniteLoopWith(maze [][]string, startPosition []int, startDirection
 			if changes {
 				traversedPaths[accumulator] = true
 			}
+			nextPosition = copyPosition(position)
+			Move(nextPosition, direction)
 		}
 		Move(position, direction)
 		countloop++
