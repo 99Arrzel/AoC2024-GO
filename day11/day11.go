@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 )
 
@@ -10,44 +9,32 @@ func main() {
 	fmt.Println("Test")
 	initialStones := []int{6563348, 67, 395, 0, 6,4425,89567,739318}
 	// initialStones := []int{125, 17}
-	for i:= 0; i < 75; i++{
+	
+	for i := 0; i< 75 ; i++{
+		initialStones = blink(initialStones)
 		fmt.Println(i, len(initialStones))
-		blink(&initialStones)
-		// fmt.Println(initialStones, "Iteration", i )
-		
 	}
+	// fmt.Println(initialStones)	
 	fmt.Println(len(initialStones))
 }
 
-func blink(initialstones *[]int) {
-	initialLen := len(*initialstones)
-	// for index := range initialstones {
-	for i := 0; i < initialLen; i++ {
-		didMutate:=processStone(initialstones, i)
-		if didMutate {
-			initialLen = len(*initialstones)
-			i++
-		}
+func blink (initialstones []int) []int{
+	result := make([]int,0)
+	for _, stone := range initialstones {
+		result = append(result, processStone(stone)...)
 	}
-	
+	return result
 }
 
-func processStone(initialStones *[]int, index int) bool {
-
-	inIndexValue := (*initialStones)[index]
-	if inIndexValue == 0 {
-		(*initialStones)[index] = 1
-		return false
+func processStone(a int) []int {
+	if a == 0 {
+		return []int{1}
 	}
-	res := strconv.Itoa((*initialStones)[index])
+	res := strconv.Itoa(a)
 	if len(res)%2 == 0 {
 		leftPart, _ := strconv.Atoi(res[0 : len(res)/2])
 		rightPart, _ := strconv.Atoi(res[len(res)/2:])
-		(*initialStones) = slices.Insert((*initialStones), index, leftPart)
-		(*initialStones)[index+1] = rightPart
-
-		return true
+		return []int{leftPart, rightPart}
 	}
-	(*initialStones)[index] = (*initialStones)[index] * 2024
-	return false
+	return []int{a * 2024}
 }
