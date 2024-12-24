@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	// initialStones := []int{6563348, 67, 395, 0, 6, 4425, 89567, 739318}
-	initialStones := []int{125, 17}
+	initialStones := []int{6563348, 67, 395, 0, 6, 4425, 89567, 739318}
+	// initialStones := []int{125, 17}
 	mappedCounters := make(map[int]int)
 	for _, stone := range initialStones {
 		_, ok := mappedCounters[stone]
@@ -20,48 +20,37 @@ func main() {
 		mappedCounters[stone] = 1
 	}
 	// startTime := time.Now()
-	blink(initialStones)
-	for i := 0; i < 25; i++ {
-		// timed := time.Since(startTime)
-		// fmt.Println(i, len(initialStones), "MS", timed.Milliseconds())
+	counter := 0
+	for i := 0; i < 75; i++ {
+		stones := blink(mappedCounters)
+		mappedCounters = stones
 	}
-	// fmt.Println(initialStones)
-	fmt.Println(len(initialStones), initialStones)
+	for key := range maps.Keys(mappedCounters) {
+		counter += mappedCounters[key]
+	}
+	fmt.Println("Final", counter)
 }
 
-func blink(initialstones []int) (map[int]int, int) {
-	mappedCounters := make(map[int]int)
-	for _, stone := range initialstones {
-		_, ok := mappedCounters[stone]
-		// mappedCounters[stone]++
-		if ok {
-			mappedCounters[stone]++
-			continue
-		}
-		mappedCounters[stone] = 1
-	}
-
-
+func blink(mappedCounters map[int]int) map[int]int {
 	counter := 0
 	mappedKeys := maps.Keys(mappedCounters)
-	fmt.Println("Before", mappedCounters)
 	mappedResult := make(map[int]int)
 	for key := range mappedKeys {
-		// value := mappedCounters[key]
 		newKeys := processStone(key)
-		for _, keyToAdd := range newKeys {
-			val, ok := mappedResult[keyToAdd]
-			if ok {
-				counter += val
-				mappedResult[keyToAdd]++
-				continue
+		val1 := mappedCounters[key]
+			for _, keyToAdd := range newKeys {
+				_, ok := mappedResult[keyToAdd]
+				if !ok {
+					mappedResult[keyToAdd] = val1
+					counter++
+					continue
+				}
+				mappedResult[keyToAdd] += val1
+				counter += val1
 			}
-			mappedResult[keyToAdd] = 1
-			counter++
-		}
 	}
-	fmt.Println(mappedResult, counter)
-	return mappedResult, counter
+
+	return mappedResult
 }
 
 // https://stackoverflow.com/questions/68122675/fastest-way-to-find-number-of-digits-of-an-integer
@@ -83,8 +72,8 @@ func processStone(stone int) []int {
 	if stone == 0 {
 		return []int{1}
 	}
-	res := strconv.Itoa(stone)
-	if len(res)%2 == 0 {
+	if stone != 1 && lenLoop10(stone)%2 == 0 {
+		res := strconv.Itoa(stone)
 		leftPart, _ := strconv.Atoi(res[0 : len(res)/2])
 		rightPart, _ := strconv.Atoi(res[len(res)/2:])
 		return []int{leftPart, rightPart}
