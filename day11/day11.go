@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -12,17 +13,17 @@ func main() {
 	mappedCounters := make(map[int]int)
 	for _, stone := range initialStones {
 		_, ok := mappedCounters[stone]
-		// mappedCounters[stone]++
 		if ok {
 			mappedCounters[stone]++
 			continue
 		}
 		mappedCounters[stone] = 1
 	}
-	// startTime := time.Now()
+	startTime := time.Now()
 	counter := 0
 	for i := 0; i < 75; i++ {
 		stones := blink(mappedCounters)
+		fmt.Println("Iteration", i, "time", time.Since(startTime))
 		mappedCounters = stones
 	}
 	for key := range maps.Keys(mappedCounters) {
